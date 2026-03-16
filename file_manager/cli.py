@@ -1,0 +1,583 @@
+#!/usr/bin/env python3
+"""
+Command-line interface for automation features.
+"""
+
+import asyncio
+import argparse
+import sys
+import json
+import os
+import subprocess
+import shutil
+import shlex
+from datetime import datetime
+from pathlib import Path
+from typing import Optional
+
+# Import rich for progress bars
+try:
+    from rich.console import Console
+    from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TimeRemainingColumn
+    from rich.table import Table
+    from rich.prompt import Prompt
+except ImportError:
+    print("Error: 'rich' library is required. Please install it.", file=sys.stderr)
+    sys.exit(1)
+
+from .automation import FileOrganizer, ConflictResolutionStrategy
+from .search import FileSearcher
+from .file_operations import FileOperations
+from .config import ConfigManager
+from .tags import TagManager
+from .scheduler import TaskScheduler
+
+console = Console()
+
+# Security: Whitelist of allowed terminal-based editors
+ALLOWED_EDITORS = [
+    "nano", "vim", "vi", "emacs", "joe", "nvim", "pico", "ed", "micro"
+]
+
+def get_safe_editor() -> str:
+    """
+    Retrieves and validates the EDITOR environment variable.
+    Returns a safe editor path or name, falling back to 'nano' if invalid or not allowed.
+    """
+    editor_env = os.environ.get('EDITOR', 'nano')
+    if not editor_env:
+        return 'nano'
+
+    # Handle cases where EDITOR might have arguments (e.g., "vim -u NONE")
+    try:
+        parts = shlex.split(editor_env)
+        if not parts:
+            return 'nano'
+        editor_cmd = parts[0]
+    except ValueError:
+        return 'nano'
+
+    # Get the basename of the editor command (e.g., "/usr/bin/vim" -> "vim")
+    editor_name = os.path.basename(editor_cmd)
+
+    # Check against whitelist
+    if editor_name not in ALLOWED_EDITORS:
+        return 'nano'
+
+    # Ensure the editor is available in the system PATH
+    if not shutil.which(editor_cmd):
+        # If the specific command/path isn't found, try finding the name in PATH
+        if not shutil.which(editor_name):
+            return 'nano'
+        return editor_name
+
+    return editor_env
+
+def setup_parser():
+    """Set up the argument parser."""
+    parser = argparse.ArgumentParser(
+        description="File Manager - Automation CLI",
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    
+    parser.add_argument('--undo', action='store_true', help='Undo last operation')
+    parser.add_argument('--redo', action='store_true', help='Redo last operation')
+    parser.add_argument('--json', action='store_true', help='Output in JSON format')
+
+    subparsers = parser.add_subparsers(dest='command', help='Command to execute')
+    
+    # Organize command
+    organize = subparsers.add_parser('organize', help='Organize files')
+    organize.add_argument('--source', required=True, help='Source directory')
+    organize.add_argument('--target', required=True, help='Target directory')
+    organize.add_argument('--by-type', action='store_true', help='Organize by file type')
+    organize.add_argument('--by-date', action='store_true', help='Organize by date')
+    organize.add_argument('--move', action='store_true', help='Move files instead of copy')
+    
+    # Search command
+    search = subparsers.add_parser('search', help='Search for files')
+    search.add_argument('--dir', required=True, help='Directory to search')
+    search.add_argument('--name', help='File name pattern')
+    search.add_argument('--content', help='Search file contents')
+    search.add_argument('--case-sensitive', action='store_true', help='Case sensitive search')
+    
+    # Duplicates command
+    dup = subparsers.add_parser('duplicates', help='Find duplicate files')
+    dup.add_argument('--dir', required=True, help='Directory to search')
+    dup.add_argument('--recursive', action='store_true', default=True, help='Search recursively')
+    dup.add_argument('--resolve', choices=['newest', 'oldest', 'largest', 'smallest', 'interactive'], help='Resolve duplicates strategy')
+    
+    # Cleanup command
+    cleanup = subparsers.add_parser('cleanup', help='Clean up old files')
+    cleanup.add_argument('--dir', required=True, help='Directory to clean')
+    cleanup.add_argument('--days', type=int, required=True, help='Delete files older than N days')
+    cleanup.add_argument('--dry-run', action='store_true', help='Show what would be deleted without deleting')
+    cleanup.add_argument('--recursive', action='store_true', help='Search recursively')
+    
+    # Rename command
+    rename = subparsers.add_parser('rename', help='Batch rename files')
+    rename.add_argument('--dir', required=True, help='Directory containing files')
+    rename.add_argument('--pattern', required=True, help='Text pattern to match')
+    rename.add_argument('--replacement', required=True, help='Replacement text')
+    rename.add_argument('--recursive', action='store_true', help='Process subdirectories')
+
+    # Config command
+    config = subparsers.add_parser('config', help='Manage configuration')
+    config.add_argument('--edit', action='store_true', help='Edit configuration file')
+    config.add_argument('--theme', choices=['dark', 'light', 'solarized', 'dracula'], help='Set UI theme')
+
+    # Tags command
+    tags = subparsers.add_parser('tags', help='Manage file tags')
+    tags.add_argument('--add', nargs=2, metavar=('FILE', 'TAG'), help='Add tag to file')
+    tags.add_argument('--remove', nargs=2, metavar=('FILE', 'TAG'), help='Remove tag from file')
+    tags.add_argument('--list', action='store_true', help='List all tags')
+    tags.add_argument('--search', metavar='TAG', help='List files with tag')
+    tags.add_argument('--cleanup', action='store_true', help='Clean up missing files')
+    tags.add_argument('--export', action='store_true', help='Export all tags')
+
+    # Schedule command
+    schedule = subparsers.add_parser('schedule', help='Manage scheduled tasks')
+    schedule.add_argument('--list', action='store_true', help='List scheduled jobs')
+    schedule.add_argument('--add', nargs=4, metavar=('NAME', 'CRON', 'TYPE', 'PARAMS_JSON'), help='Add new job')
+    schedule.add_argument('--remove', metavar='NAME', help='Remove job')
+    schedule.add_argument('--daemon', action='store_true', help='Run scheduler daemon')
+    schedule.add_argument('--run-now', metavar='NAME', help='Run a scheduled job immediately')
+    
+    return parser
+
+async def monitor_progress(queue: asyncio.Queue, task_description: str, total: Optional[int] = None):
+    """Monitor progress queue and update rich progress bar."""
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        TimeRemainingColumn(),
+        console=console
+    ) as progress:
+        task_id = progress.add_task(task_description, total=total)
+
+        while True:
+            item = await queue.get()
+            if item is None:
+                break
+
+            progress.console.print(f"Processed: {item}")
+            progress.advance(task_id)
+
+async def handle_organize(args):
+    organizer = FileOrganizer()
+    source = Path(args.source)
+    target = Path(args.target)
+
+    if not source.exists():
+        if args.json:
+             print(json.dumps({"error": f"Source directory does not exist: {source}"}))
+        else:
+             console.print(f"[bold red]Error:[/bold red] Source directory does not exist: {source}")
+        return 1
+
+    progress_queue = asyncio.Queue() if not args.json else None
+
+    task = None
+    if args.by_type:
+        task = asyncio.create_task(organizer.organize_by_type(source, target, move=args.move, progress_queue=progress_queue))
+    elif args.by_date:
+        task = asyncio.create_task(organizer.organize_by_date(source, target, move=args.move, progress_queue=progress_queue))
+    else:
+        if args.json:
+            print(json.dumps({"error": "Specify --by-type or --by-date"}))
+        else:
+            console.print("[bold red]Error:[/bold red] Specify either --by-type or --by-date")
+        return 1
+
+    if progress_queue:
+        monitor_task = asyncio.create_task(monitor_progress(progress_queue, "Organizing files..."))
+        result = await task
+        await progress_queue.put(None)
+        await monitor_task
+    else:
+        result = await task
+
+    # Summary
+    if args.json:
+        # result is Dict[str, List[Path]]
+        # Convert Path to str
+        json_result = {k: [str(p) for p in v] for k, v in result.items()}
+        print(json.dumps(json_result, indent=2))
+    else:
+        table = Table(title="Organization Summary")
+        table.add_column("Category", style="cyan")
+        table.add_column("Count", style="green")
+
+        for category, files in result.items():
+            table.add_row(category, str(len(files)))
+
+        console.print(table)
+
+    return 0
+
+async def handle_search(args):
+    searcher = FileSearcher()
+    directory = Path(args.dir)
+
+    if not directory.exists():
+        if args.json:
+             print(json.dumps({"error": f"Directory does not exist: {directory}"}))
+        else:
+             console.print(f"[bold red]Error:[/bold red] Directory does not exist: {directory}")
+        return 1
+
+    results = []
+    if args.name:
+        results = searcher.search_by_name(directory, args.name, case_sensitive=args.case_sensitive)
+    elif args.content:
+        results = searcher.search_by_content(directory, args.content, case_sensitive=args.case_sensitive)
+
+    if args.json:
+        print(json.dumps([str(p) for p in results], indent=2))
+    else:
+        console.print(f"Found {len(results)} files:")
+        for path in results:
+            console.print(f"  {path}")
+    return 0
+
+async def handle_duplicates(args):
+    organizer = FileOrganizer()
+    directory = Path(args.dir)
+
+    progress_queue = asyncio.Queue() if not args.json else None
+
+    duplicates = await organizer.find_duplicates(directory, recursive=args.recursive)
+
+    if args.resolve:
+        strategy = ConflictResolutionStrategy.INTERACTIVE
+        if args.resolve == 'newest':
+            strategy = ConflictResolutionStrategy.KEEP_NEWEST
+        elif args.resolve == 'oldest':
+            strategy = ConflictResolutionStrategy.KEEP_OLDEST
+        elif args.resolve == 'largest':
+            strategy = ConflictResolutionStrategy.KEEP_LARGEST
+        elif args.resolve == 'smallest':
+            strategy = ConflictResolutionStrategy.KEEP_SMALLEST
+
+        if strategy == ConflictResolutionStrategy.INTERACTIVE:
+             if args.json:
+                 print(json.dumps({"error": "Interactive mode not supported in JSON output"}, indent=2))
+                 return 1
+             else:
+                 for hash_val, files in duplicates.items():
+                     console.print(f"\nDuplicate group ({len(files)} files):", style="bold yellow")
+                     for i, path in enumerate(files, start=1):
+                         try:
+                             size = path.stat().st_size
+                         except OSError:
+                             size = 0
+                         console.print(f"  {i}. {path}  ({size} bytes)")
+                     choice = Prompt.ask(
+                         f"Keep which file? (1-{len(files)}, or 's' to skip)",
+                         default="s"
+                     )
+                     try:
+                         keep_idx = int(choice) - 1
+                         if 0 <= keep_idx < len(files):
+                             for i, path in enumerate(files):
+                                 if i != keep_idx:
+                                     await organizer.file_ops.delete(path)
+                         else:
+                             console.print("[yellow]Invalid choice, skipping group.[/]")
+                     except (ValueError, TypeError):
+                         console.print("[yellow]Skipping group.[/]")
+                 return 0
+        else:
+             task = asyncio.create_task(organizer.resolve_duplicates(duplicates, strategy, progress_queue))
+             if progress_queue:
+                 monitor_task = asyncio.create_task(monitor_progress(progress_queue, "Resolving duplicates..."))
+                 deleted = await task
+                 await progress_queue.put(None)
+                 await monitor_task
+             else:
+                 deleted = await task
+
+             if args.json:
+                 print(json.dumps({"deleted": [str(p) for p in deleted]}, indent=2))
+             else:
+                 table = Table(title="Duplicate Resolution Summary")
+                 table.add_column("Deleted File", style="red")
+                 for path in deleted:
+                     table.add_row(str(path))
+                 console.print(table)
+                 console.print(f"Resolved duplicates. Deleted {len(deleted)} files.")
+             return 0
+
+    if args.json:
+        # Convert Path to str
+        json_result = {k: [str(p) for p in v] for k, v in duplicates.items()}
+        print(json.dumps(json_result, indent=2))
+    else:
+        if duplicates:
+            console.print(f"Found {len(duplicates)} groups of duplicate files:")
+            for hash_val, files in duplicates.items():
+                console.print(f"\n  Duplicate group ({len(files)} files):", style="bold yellow")
+                for path in files:
+                    console.print(f"    {path}")
+        else:
+            console.print("No duplicates found.")
+    return 0
+
+async def handle_cleanup(args):
+    organizer = FileOrganizer()
+    directory = Path(args.dir)
+
+    progress_queue = asyncio.Queue() if not args.json else None
+
+    # Start task
+    task = asyncio.create_task(organizer.cleanup_old_files(
+        directory, args.days, args.recursive, args.dry_run, progress_queue
+    ))
+
+    if progress_queue:
+        monitor_task = asyncio.create_task(monitor_progress(progress_queue, "Cleaning up files..."))
+        old_files = await task
+        await progress_queue.put(None)
+        await monitor_task
+    else:
+        old_files = await task
+
+    if args.json:
+        print(json.dumps([str(p) for p in old_files], indent=2))
+    else:
+        action = "Would delete" if args.dry_run else "Deleted"
+        table = Table(title=f"Cleanup Summary ({action})")
+        table.add_column("File", style="red" if not args.dry_run else "yellow")
+        for path in old_files:
+            table.add_row(str(path))
+        console.print(table)
+        console.print(f"Total {action.lower()}: {len(old_files)} files.")
+    return 0
+
+async def handle_rename(args):
+    organizer = FileOrganizer()
+    directory = Path(args.dir)
+
+    progress_queue = asyncio.Queue() if not args.json else None
+
+    task = asyncio.create_task(organizer.batch_rename(
+        directory, args.pattern, args.replacement, args.recursive, progress_queue
+    ))
+
+    if progress_queue:
+        monitor_task = asyncio.create_task(monitor_progress(progress_queue, "Renaming files..."))
+        renamed = await task
+        await progress_queue.put(None)
+        await monitor_task
+    else:
+        renamed = await task
+
+    if args.json:
+        print(json.dumps([str(p) for p in renamed], indent=2))
+    else:
+        table = Table(title="Rename Summary")
+        table.add_column("New File Path", style="green")
+        for path in renamed:
+            table.add_row(str(path))
+        console.print(table)
+        console.print(f"Renamed {len(renamed)} files.")
+    return 0
+
+async def handle_undo(args):
+    # Note: because history is session-scoped, running a new CLI command to undo
+    # will start with a fresh history and say "Nothing to undo".
+    # But to conform to the API:
+    file_ops = FileOperations()
+    result = await file_ops.undo_last()
+    if args.json:
+        print(json.dumps({"result": result}))
+    else:
+        console.print(f"[bold]Undo Result:[/bold] {result}")
+
+async def handle_redo(args):
+    file_ops = FileOperations()
+    result = await file_ops.redo_last()
+    if args.json:
+        print(json.dumps({"result": result}))
+    else:
+        console.print(f"[bold]Redo Result:[/bold] {result}")
+
+async def handle_config(args):
+    config_manager = ConfigManager()
+    config_path = config_manager.get_config_path()
+
+    if args.theme:
+        config_manager.set_theme(args.theme)
+        console.print(f"[green]Theme successfully set to: {args.theme}[/green]")
+        return 0
+
+    if args.edit:
+        editor = get_safe_editor()
+        # If get_safe_editor returned a full command with args, we need to handle it correctly
+        # But subprocess.call([editor, str(config_path)]) expects 'editor' to be just the executable.
+        # If editor was 'vim -u NONE', then we'd want ['vim', '-u', 'NONE', config_path]
+        try:
+            cmd_parts = shlex.split(editor)
+            cmd_parts.append(str(config_path))
+            subprocess.call(cmd_parts)
+        except Exception as e:
+            console.print(f"[red]Error launching editor: {e}[/red]")
+            return 1
+    else:
+        console.print(f"Configuration file: {config_path}")
+        categories = config_manager.load_categories()
+        console.print(categories)
+    return 0
+
+async def handle_tags(args):
+    manager = TagManager()
+
+    if args.add:
+        path = Path(args.add[0])
+        tag = args.add[1]
+        if not path.exists():
+            console.print(f"[red]File not found: {path}[/]")
+            return 1
+        if manager.add_tag(path, tag):
+            console.print(f"[green]Added tag '{tag}' to {path}[/]")
+        else:
+            console.print("[red]Failed to add tag.[/]")
+
+    elif args.remove:
+        path = Path(args.remove[0])
+        tag = args.remove[1]
+        if manager.remove_tag(path, tag):
+             console.print(f"[green]Removed tag '{tag}' from {path}[/]")
+        else:
+             console.print("[yellow]Tag not found.[/]")
+
+    elif args.list:
+        tags = manager.list_all_tags()
+        table = Table(title="All Tags")
+        table.add_column("Tag", style="cyan")
+        table.add_column("Count", style="green")
+        for t, c in tags:
+            table.add_row(t, str(c))
+        console.print(table)
+
+    elif args.search:
+        files = manager.get_files_by_tag(args.search)
+        console.print(f"Files with tag '[cyan]{args.search}[/]':")
+        for f in files:
+            console.print(f"  {f}")
+
+    elif args.cleanup:
+        count = manager.cleanup_missing_files()
+        console.print(f"Removed {count} missing files from database.")
+
+    elif args.export:
+        tags = manager.list_all_tags()
+        export_data = [{"tag": t, "count": c} for t, c in tags]
+        if args.json:
+            print(json.dumps(export_data, indent=2))
+        else:
+            console.print(json.dumps(export_data, indent=2))
+
+    return 0
+
+async def handle_schedule(args):
+    scheduler = TaskScheduler()
+
+    if args.daemon:
+        await scheduler.run_daemon()
+        return 0
+
+    if args.list:
+        jobs = scheduler.list_jobs()
+        table = Table(title="Scheduled Jobs")
+        table.add_column("Name", style="bold")
+        table.add_column("Cron", style="yellow")
+        table.add_column("Type", style="cyan")
+        table.add_column("Last Run", style="dim")
+
+        for job in jobs:
+            last_run = "Never"
+            if job["last_run"]:
+                last_run = datetime.fromtimestamp(job["last_run"])
+            table.add_row(job["name"], job["cron"], job["type"], last_run)
+        console.print(table)
+
+    elif args.add:
+        name, cron, type_, params_str = args.add
+        try:
+            params = json.loads(params_str)
+        except json.JSONDecodeError:
+            console.print("[red]Invalid JSON parameters.[/]")
+            return 1
+
+        if scheduler.add_job(name, cron, type_, params):
+            console.print(f"[green]Job '{name}' added.[/]")
+        else:
+             console.print("[red]Failed to add job (invalid cron or type).[/]")
+
+    elif args.remove:
+        if scheduler.remove_job(args.remove):
+            console.print(f"[green]Job '{args.remove}' removed.[/]")
+        else:
+            console.print(f"[yellow]Job '{args.remove}' not found.[/]")
+
+    elif args.run_now:
+        jobs = scheduler.list_jobs()
+        job_to_run = next((j for j in jobs if j["name"] == args.run_now), None)
+        if job_to_run:
+            console.print(f"[cyan]Running job '{args.run_now}' immediately...[/]")
+            await scheduler._execute_job(job_to_run)
+            console.print(f"[green]Job '{args.run_now}' completed.[/]")
+        else:
+            console.print(f"[red]Job '{args.run_now}' not found.[/]")
+
+    return 0
+
+async def main_async():
+    parser = setup_parser()
+    args = parser.parse_args()
+    
+    if args.undo:
+        await handle_undo(args)
+        return 0
+    if args.redo:
+        await handle_redo(args)
+        return 0
+
+    if not args.command:
+        parser.print_help()
+        return 1
+    
+    command_handlers = {
+        'organize': handle_organize,
+        'search': handle_search,
+        'duplicates': handle_duplicates,
+        'cleanup': handle_cleanup,
+        'rename': handle_rename,
+        'config': handle_config,
+        'tags': handle_tags,
+        'schedule': handle_schedule
+    }
+
+    handler = command_handlers.get(args.command)
+    if handler:
+        try:
+            return await handler(args)
+        except Exception as e:
+            if args.json:
+                 print(json.dumps({"error": str(e)}))
+            else:
+                 console.print(f"[bold red]Error:[/bold red] {str(e)}")
+            return 1
+    else:
+        return 1
+
+def main():
+    try:
+        sys.exit(asyncio.run(main_async()))
+    except KeyboardInterrupt:
+        sys.exit(1)
+
+if __name__ == '__main__':
+    main()

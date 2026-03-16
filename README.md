@@ -1,24 +1,23 @@
 # Scout Organizer
 
-AI-assisted filesystem organizer powered by a local [Ollama](https://ollama.ai/) instance.
-Two interfaces, one brain — pick whichever fits your device.
+AI-assisted filesystem organizer powered by a local [Ollama](https://ollama.ai/) instance.  
+Three interfaces — pick whichever fits your device.
 
 | Interface | File | Best for |
 |---|---|---|
-| **Desktop TUI** | `organizer.py` | Linux desktop / laptop |
+| **Desktop TUI** | `organizer.py` | Linux desktop / laptop — full dual-pane file manager + AI mode |
 | **Termux CLI** | `scout_termux.py` | Android (Termux), SSH sessions, minimal installs |
 
 ---
 
-## How it works
+## What's inside
 
-1. Point Scout at a directory.
-2. It sends the file list to a local Ollama model.
-3. The model returns a JSON reorganisation plan — `{"FolderName": ["file1", "file2"]}`.
-4. Review the plan, then Execute to move the files.
-5. Undo reverses the last batch if you change your mind.
+Scout-Organizer is a merger of two projects:
 
-No files are modified until you explicitly confirm. Every execution is logged to a history file so undo always works.
+- **Scout-Organizer** (original) — Ollama-powered directory organisation: Scout, Execute, Undo, Dup Scan, Presets.
+- **TFM (The Future Manager)** — dual-pane Commander-style file manager with async file ops, multi-selection, tabs, tags, search, themes, and NL AI automation.
+
+The unified desktop TUI gives you both: a full file manager you can use every day, and an AI assistant that plans and executes filesystem operations in plain English.
 
 ---
 
@@ -27,13 +26,12 @@ No files are modified until you explicitly confirm. Every execution is logged to
 **Both scripts require:**
 - Python 3.10+
 - [Ollama](https://ollama.ai/) running locally (or on your network)
-- At least one Ollama model pulled (see [Models](#models) below)
+- At least one model pulled (see [Models](#models) below)
 
 **Desktop TUI** (`organizer.py`) also requires:
 ```sh
-pip install textual>=8.0.0 requests
-# or
 pip install -r requirements.txt
+# textual, rich, requests, jinja2, jsonschema, PyYAML
 ```
 
 **Termux CLI** (`scout_termux.py`) only requires:
@@ -45,97 +43,115 @@ pip install requests
 
 ## Ollama setup
 
-Install Ollama and pull a model before running either script.
-
 ```sh
-# Install (Linux / macOS)
+# Install Ollama (Linux / macOS)
 curl -fsSL https://ollama.ai/install.sh | sh
 
-# Pull the default models
-ollama pull qwen2.5-coder:1.5b   # Termux default (fast, ~1 GB)
+# Pull models
+ollama pull qwen2.5-coder:1.5b   # Termux default (~1 GB)
 ollama pull qwen2.5-coder:7b     # Desktop default (~5 GB)
 
-# Start the server (if not already running as a service)
+# Start server (if not already running as a service)
 ollama serve
 ```
 
-Ollama must be reachable at `http://localhost:11434` — or set `OLLAMA_HOST` (see below).
+Ollama must be reachable at `http://localhost:11434`, or set `OLLAMA_HOST`:
+
+```sh
+export OLLAMA_HOST=http://192.168.1.10:11434
+```
 
 ---
 
 ## Desktop TUI — `organizer.py`
 
-### Run
-
 ```sh
 python organizer.py
 ```
 
-### Layout
+### Start menu
+
+On launch you choose:
+- **File Manager** — opens the dual-pane Commander-style browser
+- **AI Scout Mode** — opens the NL automation console
+
+### File Manager mode
 
 ```
-┌─────────────────┬──────────────────────────────────────┐
-│  Directory tree │  Status bar (active model)            │
-│  (top 60 %)     │  AI response / plan (JSON)            │
-│─────────────────│  Action log                           │
-│  File preview   │  [Scout] [Execute] [Undo]             │
-│  (bottom 40 %)  │  [Dup Scan] [Presets] [Model]         │
-└─────────────────┴──────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────┐
+│  Tabs: [Home ×]  [Downloads ×]  …                        │
+│ ┌──────────────────┬──────────────────┐                  │
+│ │  Left panel      │  Right panel     │  [Preview pane]  │
+│ │  ~/Downloads     │  ~/Documents     │  (toggle P)      │
+│ │  file1.pdf  ✓    │  project/        │                  │
+│ │  image.png  ✓    │  notes.txt       │                  │
+│ │  …               │  …               │                  │
+│ └──────────────────┴──────────────────┘                  │
+│  2 selected (1.4 MB)          Free: 42.3 GB   Sort: Name │
+└──────────────────────────────────────────────────────────┘
 ```
 
-### Key bindings
+#### Key bindings — File Manager
 
 | Key | Action |
 |-----|--------|
-| `S` | **Scout** — ask the AI for an organisation plan for the selected folder |
-| `E` | **Execute** — apply the plan (moves files into subfolders) |
-| `U` | **Undo** — reverse the last execution batch |
-| `D` | **Dup Scan** — MD5-checksum scan for duplicate files (up to 3 levels deep) |
-| `P` | **Presets** — delete files matching patterns in `presets.json` |
-| `M` | **Toggle model** — switch between `qwen2.5-coder:7b` and `qwen3-coder:30b` |
-| `H` / `?` | Show help modal |
-| `Q` | Quit |
-| `↑↓` | Navigate the directory tree |
-| `Enter` | Expand / collapse a folder |
+| `Tab` | Switch active panel |
+| `Space` | Toggle file selection |
+| `Shift+↑/↓` | Range selection |
+| `Ctrl+A` / `Ctrl+D` | Select all / deselect all |
+| `c` | Copy selected to other panel |
+| `m` | Move selected to other panel |
+| `d` | Delete selected (soft — moved to `~/.scout/trash/`) |
+| `n` | New directory |
+| `r` | Rename |
+| `p` | Toggle file preview pane |
+| `Ctrl+T` / `Ctrl+W` | New tab / close tab |
+| `Ctrl+Tab` | Next tab |
+| `Ctrl+R` | Refresh |
+| `Ctrl+Shift+T` | Theme switcher |
+| `h` | Toggle help overlay |
+| `Esc` | Back to start menu |
 
-### Models (desktop)
+### AI Scout mode
 
-| Model | Size | Notes |
-|-------|------|-------|
-| `qwen2.5-coder:7b` | ~5 GB | Default — good balance of speed and quality |
-| `qwen3-coder:30b` | ~19 GB | Slower; better reasoning on large/complex directories |
+Left panel: quick-action buttons  
+Right panel: target directory input, natural-language command box, dry-run toggle, output log
 
-Toggle with `M` at any time. The active model is shown in the status bar.
+#### Quick actions
+
+| Button | Prefills command |
+|--------|-----------------|
+| Organize by Type | Sort files into extension-based subfolders |
+| Organize by Date | Sort files into `YYYY/MM/` subfolders |
+| Cleanup Old Files | Delete files older than 30 days |
+| Find Duplicates | 3-pass SHA-256 duplicate scan |
+| Batch Rename | Find-and-replace in filenames |
+| Scout Plan | AI-driven folder restructure (Ollama) |
+
+All destructive actions require confirmation. **Dry-Run mode** (on by default) simulates the plan before asking.
+
+#### Model toggle
+
+Click **Toggle Model** in AI mode to switch between `qwen2.5-coder:7b` and `qwen3-coder:30b`.  
+Or set a default: `export SCOUT_MODEL=qwen3-coder:30b`
 
 ---
 
 ## Termux CLI — `scout_termux.py`
 
-Designed for phone-sized screens and thumb-typing. No Textual, no curses — just ANSI colour and numbered menus.
-
-### Install on Termux
-
 ```sh
+# Install on Termux
 pkg update && pkg install python
 pip install requests
-```
 
-### Run
-
-```sh
+# Run
 python scout_termux.py
 ```
 
-### Remote Ollama
-
-If Ollama is running on a PC on the same network (common when using Termux on Android):
-
+Set `OLLAMA_HOST` if Ollama is on a remote machine:
 ```sh
 export OLLAMA_HOST=http://192.168.1.10:11434
-python scout_termux.py
 ```
-
-You can put the export in `~/.bashrc` or `~/.zshrc` so you don't have to set it every time.
 
 ### Menu reference
 
@@ -151,52 +167,30 @@ You can put the export in `~/.bashrc` or `~/.zshrc` so you don't have to set it 
 q  Quit
 ```
 
-### Directory browser
-
-Inside **Browse**, enter:
-
-| Input | Action |
-|-------|--------|
-| A number | Enter that subdirectory |
-| `0` | Use the current directory |
-| `..` or `b` | Go up one level |
-| `p` | Type an absolute or `~`-relative path |
-| `q` | Cancel (keep current directory) |
-
-### Models (Termux)
-
-| Model | Size | Notes |
-|-------|------|-------|
-| `qwen2.5-coder:1.5b` | ~1 GB | Default — fast, works on most phones |
-| `qwen2.5-coder:7b` | ~5 GB | Better plans; needs a powerful device or remote Ollama |
-
-Toggle with option **6** in the main menu.
-
 ---
 
 ## Shared features
 
-### Execute
+### Tags (desktop)
 
-Parses the AI's JSON plan and calls `shutil.move()` for each file. Destination subfolders are created automatically. Only files that actually exist in the target directory are moved — everything else is silently skipped.
+Files can be tagged via the AI mode "Suggest Tags" button, or programmatically via `TagManager`. Tags are stored in `~/.scout/tags.db` (SQLite). Use the file search to find files by tag.
 
-Every execution is appended to the history file before any files are moved.
+### Undo / redo (desktop)
 
-### Undo
-
-Reverses the most recent execution batch by moving each file back to its original path. You are shown the session details and asked to confirm before anything changes.
-
-History is stored in:
-- Desktop: `~/Projects/Scout-Organizer/history.json`
-- Termux: `~/scout_history.json`
+All file ops (copy / move / delete / rename / create dir) flow through `FileOperations`, which maintains an in-memory undo/redo stack. Deleted files go to `~/.scout/trash/` so they can be restored.
 
 ### Duplicate scan
 
-Walks the selected directory up to **3 levels deep**, MD5-checksums every file under 500 MB, and groups identical files. The first occurrence of each group is kept in place; all others become candidates for the `_Duplicates/` subfolder. Review the plan, then Execute to move them.
+- **Desktop AI mode**: 3-pass strategy — size → partial hash → full SHA-256. Recursive, unlimited depth.
+- **Termux CLI**: MD5, up to 3 levels deep, files ≤ 500 MB.
+
+### Themes (desktop)
+
+Available: `dark` (default), `light`, `solarized`, `dracula`. Switch with `Ctrl+Shift+T` or edit `~/.scout/config.yaml`.
 
 ### Presets
 
-Pattern-based cleanup using Python's `fnmatch`. Edit `presets.json` in the project root to add your own rules:
+Pattern-based cleanup using `fnmatch`. Edit `presets.json` in the project root:
 
 ```json
 [
@@ -206,7 +200,9 @@ Pattern-based cleanup using Python's `fnmatch`. Edit `presets.json` in the proje
 ]
 ```
 
-Each matched file or directory in the **currently selected folder** (not recursive) is permanently deleted. A confirmation prompt is shown before anything is removed.
+### Plugins (desktop)
+
+Drop Python files implementing `TFMPlugin` into `~/.scout/plugins/` — they are loaded automatically on startup. Hooks: `on_file_added`, `on_file_deleted`, `on_organize`, `on_search_complete`.
 
 ---
 
@@ -214,26 +210,45 @@ Each matched file or directory in the **currently selected folder** (not recursi
 
 ```
 Scout-Organizer/
-├── organizer.py        Desktop Textual TUI
-├── scout_termux.py     Termux / minimal CLI
-├── presets.json        Cleanup patterns (auto-created on first run)
-├── requirements.txt    Python dependencies for the desktop version
-└── reports/            Static filesystem snapshots (reference only)
+├── organizer.py          Unified desktop TUI entry point
+├── scout_termux.py       Termux / minimal CLI
+├── file_manager/         Core package (TFM + Scout merged)
+│   ├── app.py              ScoutApp — Textual app root
+│   ├── start_menu.py       Launch screen
+│   ├── user_mode.py        Dual-pane file manager screen
+│   ├── ai_mode.py          AI Scout Mode screen
+│   ├── ai_integration.py   OllamaClient (plan generation + execution)
+│   ├── ai_utils.py         OllamaExecutor (HTTP transport)
+│   ├── automation.py       FileOrganizer (organize/cleanup/dupes/rename)
+│   ├── file_operations.py  Async ops + undo/redo stack
+│   ├── file_panel.py       MultiSelectDirectoryTree, FilePanel
+│   ├── file_preview.py     Syntax-highlighted file preview widget
+│   ├── tags.py             SQLite tag manager
+│   ├── search.py           Name / content / size / tag search
+│   ├── config.py           YAML config + category map
+│   ├── context.py          Directory stats for AI prompts
+│   ├── scheduler.py        Background task scheduler
+│   ├── screens.py          Modal dialogs (confirm, input, theme, help)
+│   ├── ui_components.py    EnhancedStatusBar, DualFilePanes
+│   ├── plugins/            Plugin base class + registry
+│   ├── prompts/            Jinja2 prompt templates
+│   └── themes/             TCSS theme files
+├── presets.json          Pattern-based cleanup rules
+└── requirements.txt      Python dependencies
 ```
 
 ---
 
 ## Troubleshooting
 
-**`Connection refused` / Ollama error**
-- Make sure `ollama serve` is running.
-- If using Termux with a remote host, double-check `OLLAMA_HOST` is set correctly and the port is reachable (`curl $OLLAMA_HOST`).
+**`Connection refused` / Ollama error**  
+→ Run `ollama serve`. For Termux + remote host, check `OLLAMA_HOST`.
 
-**Model not found**
-- Run `ollama pull <model-name>` for whichever model is selected.
+**Model not found**  
+→ `ollama pull <model-name>`
 
-**Scout returns invalid JSON**
-- The model occasionally wraps its answer in markdown fences or adds prose. Try toggling to a different model or re-running Scout.
+**Scout returns invalid JSON**  
+→ Toggle to a different model and retry. The `qwen2.5-coder` series is most reliable for structured output.
 
-**Textual version crashes on startup** (`unexpected keyword argument 'class_'`)
-- Make sure `textual>=8.0.0` is installed: `pip install -U textual`.
+**Soft-deleted files are gone**  
+→ Check `~/.scout/trash/` — files are moved there, not hard-deleted.

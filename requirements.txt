@@ -1,2 +1,7 @@
-textual>=8.0.0
-requests>=2.32.5
+# Scout-Organizer unified requirements
+textual>=8.0.0      # TUI framework; work decorator removed in 8.x
+rich>=13.7.0        # Rich text / syntax highlighting in file preview
+requests>=2.32.5    # Ollama HTTP API calls
+jinja2              # Prompt templates for AI mode
+jsonschema          # Validate AI plan responses
+PyYAML              # ConfigManager (categories.yaml, config.yaml)
