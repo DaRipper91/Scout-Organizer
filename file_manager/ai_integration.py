@@ -1,5 +1,5 @@
 """
-AI Integration — OllamaClient replaces the original GeminiClient.
+AI Integration — AiChatClient replaces the original GeminiClient.
 Keeps the same public interface so AIModeScreen and other callers
 work without changes.
 """
@@ -14,7 +14,7 @@ from jinja2 import Environment, FileSystemLoader
 
 from .automation import FileOrganizer
 from .context import DirectoryContextBuilder
-from .ai_utils import OllamaExecutor
+from .ai_utils import AiChatExecutor
 from .tags import TagManager
 from .ai_schema import PLAN_SCHEMA, TAGS_SCHEMA, SEMANTIC_SEARCH_SCHEMA
 
@@ -53,15 +53,15 @@ class ResponseValidator:
         return ResponseValidator._validate(response_text, SEMANTIC_SEARCH_SCHEMA, "search")
 
 
-class OllamaClient:
+class AiChatClient:
     """
     Drop-in replacement for the original GeminiClient.
-    Uses a local Ollama instance instead of the Gemini CLI.
+    Uses a local aichat CLI instead of the Gemini CLI or aichat.
     """
 
     def __init__(self, model: Optional[str] = None):
         self.organizer       = FileOrganizer()
-        self.executor        = OllamaExecutor(model=model)
+        self.executor        = AiChatExecutor(model=model)
         self.context_builder = DirectoryContextBuilder()
         self.tag_manager     = TagManager()
 
@@ -83,7 +83,7 @@ class OllamaClient:
         prompt  = self._build_planning_prompt(user_command, current_dir, context)
 
         if not self.executor.is_available():
-            logger.warning("Ollama not available. Using mock response.")
+            logger.warning("aichat not available. Using mock response.")
             return json.loads(self._mock_response(user_command, current_dir))
 
         max_retries = 3
@@ -175,7 +175,7 @@ class OllamaClient:
             return f"Error: {e}"
 
     def suggest_tags(self, files: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """Ask Ollama to suggest tags for a list of file descriptors."""
+        """Ask aichat to suggest tags for a list of file descriptors."""
         if not self.executor.is_available():
             return {
                 "suggestions": [
@@ -291,5 +291,6 @@ class OllamaClient:
         }]}, indent=2)
 
 
-# Backwards-compat alias
-GeminiClient = OllamaClient
+# Backwards-compat aliases
+GeminiClient = AiChatClient
+AiChatClient = AiChatClient

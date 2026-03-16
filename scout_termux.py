@@ -17,7 +17,15 @@ import subprocess
 
 # ── Config ────────────────────────────────────────────────────────────────────
 
-MODELS       = ["gemini:gemini-2.5-flash", "claude:claude-3-5-sonnet-20241022"]
+def get_aichat_models():
+    try:
+        proc = subprocess.run(["aichat", "--list-models"], capture_output=True, text=True, check=True)
+        models = [line.strip() for line in proc.stdout.strip().split("\n") if line.strip()]
+        return models if models else ["gemini:gemini-2.5-flash", "claude:claude-3-5-sonnet-20241022"]
+    except Exception:
+        return ["gemini:gemini-2.5-flash", "claude:claude-3-5-sonnet-20241022"]
+
+MODELS       = get_aichat_models()
 HISTORY_FILE = os.path.expanduser("~/scout_history.json")
 PRESETS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "presets.json")
 

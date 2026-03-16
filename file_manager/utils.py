@@ -32,6 +32,6 @@ def recursive_scan(directory: Union[Path, str]) -> Generator[os.DirEntry, None, 
 
 
 # Stub kept for any code that still imports this name.
-# Ollama availability is checked via OllamaExecutor.is_available() instead.
+# aichat availability is checked via aichatExecutor.is_available() instead.
 def find_gemini_executable() -> Optional[str]:
     return None

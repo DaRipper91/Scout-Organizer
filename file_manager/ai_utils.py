@@ -1,50 +1,50 @@
 """
-OllamaExecutor — replaces the old Gemini CLI AIExecutor.
-Calls the local Ollama HTTP API instead of shelling out to gemini.
+AiChatExecutor — replaces the old OllamaExecutor.
+Calls the local aichat CLI instead of HTTP requests.
 """
 
 import os
-import requests
+import subprocess
 from typing import Optional, Tuple
 
-OLLAMA_HOST   = os.environ.get("OLLAMA_HOST", "http://100.115.141.124:11434")
-OLLAMA_URL    = f"{OLLAMA_HOST}/api/generate"
-DEFAULT_MODEL = os.environ.get("SCOUT_MODEL", "qwen2.5-coder:7b")
+DEFAULT_MODEL = os.environ.get("SCOUT_MODEL", "gemini:gemini-2.5-flash")
 
-
-class OllamaExecutor:
-    """Calls a local Ollama instance to execute prompts."""
+class AiChatExecutor:
+    """Calls a local aichat instance to execute prompts."""
 
     def __init__(self, model: Optional[str] = None):
         self.model = model or DEFAULT_MODEL
 
     def is_available(self) -> bool:
-        """Return True if the Ollama server is reachable."""
+        """Return True if the aichat CLI is reachable."""
         try:
-            r = requests.get(f"{OLLAMA_HOST}/api/tags", timeout=3)
-            return r.status_code == 200
+            r = subprocess.run(["aichat", "--version"], capture_output=True, timeout=3)
+            return r.returncode == 0
         except Exception:
             return False
 
     def execute_prompt(self, prompt: str, timeout: int = 90) -> str:
-        """Send a prompt to Ollama and return the response text."""
+        """Send a prompt to aichat and return the response text."""
         try:
-            resp = requests.post(
-                OLLAMA_URL,
-                json={
-                    "model":  self.model,
-                    "prompt": prompt,
-                    "stream": False,
-                    "format": "json",
-                },
+            proc = subprocess.run(
+                ["aichat", "-m", self.model, prompt],
+                capture_output=True,
+                text=True,
                 timeout=timeout,
+                check=True
             )
-            resp.raise_for_status()
-            return resp.json().get("response", "")
-        except requests.exceptions.ConnectionError:
-            return "Error: Cannot connect to Ollama. Is it running?"
-        except requests.exceptions.Timeout:
-            return "Error: Ollama request timed out."
+            out = proc.stdout.strip()
+            if out.startswith("```json"):
+                out = out[7:]
+            if out.startswith("```"):
+                out = out[3:]
+            if out.endswith("```"):
+                out = out[:-3]
+            return out.strip()
+        except subprocess.CalledProcessError as e:
+            return f"Error: aichat failed: {e.stderr or e.stdout}"
+        except subprocess.TimeoutExpired:
+            return "Error: aichat request timed out."
         except Exception as e:
             return f"Error: {e}"
 
@@ -56,6 +56,6 @@ class OllamaExecutor:
         """
         return None, user_request
 
-
-# Backwards-compat alias so any code that still imports AIExecutor still works.
-AIExecutor = OllamaExecutor
+# Backwards-compat aliases
+AIExecutor = AiChatExecutor
+OllamaExecutor = AiChatExecutor

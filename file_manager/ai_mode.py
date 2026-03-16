@@ -1,10 +1,11 @@
 """
-AI Scout Mode Screen — NL automation powered by Ollama.
+AI Scout Mode Screen — NL automation powered by aichat.
 """
 
 import asyncio
 import json
 import os
+import subprocess
 import time
 from typing import Optional, Dict, Any, List
 from pathlib import Path
@@ -15,15 +16,23 @@ from textual.screen import Screen
 from textual.binding import Binding
 from textual import work
 
-from .ai_integration import OllamaClient
+from .ai_integration import AiChatClient
 from .screens import ConfirmationScreen
 from .logger import get_logger
 
 logger = get_logger("ai_mode")
 
+def get_aichat_models() -> List[str]:
+    try:
+        proc = subprocess.run(["aichat", "--list-models"], capture_output=True, text=True, check=True)
+        models = [line.strip() for line in proc.stdout.strip().split("\n") if line.strip()]
+        return models if models else ["gemini:gemini-2.5-flash", "claude:claude-3-5-sonnet-20241022"]
+    except Exception:
+        return ["gemini:gemini-2.5-flash", "claude:claude-3-5-sonnet-20241022"]
+
 
 class AIModeScreen(Screen):
-    """Screen for Ollama-powered file automation."""
+    """Screen for aichat-powered file automation."""
 
     CSS = """
     AIModeScreen {
@@ -83,12 +92,12 @@ class AIModeScreen(Screen):
         Binding("down", "history_down", "Next Command"),
     ]
 
-    MODELS = ["qwen2.5-coder:7b", "qwen3-coder:30b"]
+    MODELS = get_aichat_models()
 
     def __init__(self):
         super().__init__()
         self._model_idx = 0
-        self.ollama      = OllamaClient(model=self.MODELS[self._model_idx])
+        self.ai_client      = AiChatClient(model=self.MODELS[self._model_idx])
         self.current_dir = Path.cwd()
         self.current_plan: List[Dict[str, Any]] = []
         self.history: List[Dict[str, Any]] = self._load_history()
@@ -172,12 +181,11 @@ class AIModeScreen(Screen):
     def on_mount(self) -> None:
         self.query_one("#command_input").focus()
         log = self.query_one("#output_log", RichLog)
-        ollama_ok = self.ollama.executor.is_available()
-        if ollama_ok:
-            log.write(f"[bold green]Ollama online.[/]  Model: {self.MODELS[self._model_idx]}")
+        aichat_ok = self.ai_client.executor.is_available()
+        if aichat_ok:
+            log.write(f"[bold green]aichat online.[/]  Model: {self.MODELS[self._model_idx]}")
         else:
-            log.write("[bold red]Ollama offline.[/]  Start it with: ollama serve")
-            log.write("[yellow]Hint:[/] set OLLAMA_HOST if Ollama is on another machine.")
+            log.write("[bold red]aichat unavailable.[/]  Please install aichat and ensure it is in PATH.")
         log.write("Select a Quick Action or type a command above.")
 
     # ------------------------------------------------------------------
@@ -246,7 +254,7 @@ class AIModeScreen(Screen):
     def _toggle_model(self) -> None:
         self._model_idx = (self._model_idx + 1) % len(self.MODELS)
         new_model = self.MODELS[self._model_idx]
-        self.ollama = OllamaClient(model=new_model)
+        self.ai_client = AiChatClient(model=new_model)
         self.query_one("#model-label", Label).update(f"Model: {new_model}")
         self.query_one("#output_log", RichLog).write(f"[dim]Switched to {new_model}[/]")
 
@@ -283,7 +291,7 @@ class AIModeScreen(Screen):
         self.app.call_from_thread(self._log_message, f"[dim]Thinking…  target: {target_path}[/]")
 
         try:
-            plan_data = self.ollama.generate_plan(command, target_path)
+            plan_data = self.ai_client.generate_plan(command, target_path)
 
             if "fallback_text" in plan_data and not plan_data.get("plan"):
                 self.app.call_from_thread(
@@ -308,7 +316,7 @@ class AIModeScreen(Screen):
                 msg += "\n[bold cyan]Dry-Run Simulation:[/bold cyan]\n"
                 for step in self.current_plan:
                     try:
-                        res = asyncio.run(self.ollama.execute_plan_step(step, dry_run=True))
+                        res = asyncio.run(self.ai_client.execute_plan_step(step, dry_run=True))
                         color = "red" if any(w in res.lower() for w in ("delete", "remove")) else \
                                 "yellow" if any(w in res.lower() for w in ("move", "rename", "organize")) else \
                                 "green"
@@ -352,7 +360,7 @@ class AIModeScreen(Screen):
         self.app.call_from_thread(self._log_message, "[bold]Executing Plan…[/]")
         for step in self.current_plan:
             try:
-                result = asyncio.run(self.ollama.execute_plan_step(step, dry_run=False))
+                result = asyncio.run(self.ai_client.execute_plan_step(step, dry_run=False))
                 self.app.call_from_thread(
                     self._log_message, f"[green]✔ Step {step['step']}: {result}[/]"
                 )
@@ -370,7 +378,7 @@ class AIModeScreen(Screen):
         if not self.history:
             self.app.call_from_thread(self._log_message, "[yellow]No history.[/]")
             return
-        results = self.ollama.search_history(query, self.history)
+        results = self.ai_client.search_history(query, self.history)
         if not results:
             self.app.call_from_thread(self._log_message, "[dim]No matches.[/]")
             return
@@ -397,7 +405,7 @@ class AIModeScreen(Screen):
             self.app.call_from_thread(self._log_message, "[red]No files found.[/]")
             return
 
-        suggestions = self.ollama.suggest_tags(files)
+        suggestions = self.ai_client.suggest_tags(files)
         if not suggestions or not suggestions.get("suggestions"):
             self.app.call_from_thread(self._log_message, "[yellow]No tags suggested.[/]")
             return

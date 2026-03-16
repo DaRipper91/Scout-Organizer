@@ -85,7 +85,7 @@ class StartMenuScreen(Screen):
             with Vertical():
                 yield Static(self.LOGO, id="logo")
                 yield Label(
-                    "AI-assisted filesystem organizer  ·  Powered by Ollama",
+                    "AI-assisted filesystem organizer  ·  Powered by aichat",
                     id="tagline",
                 )
 
