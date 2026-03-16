@@ -1,0 +1,5 @@
+[
+  {"name": "Java Error Logs",   "pattern": "java_error_*.hprof"},
+  {"name": "Trashed Files",     "pattern": ".trashed-*"},
+  {"name": "Partial Downloads", "pattern": "*.partial"}
+]

@@ -1,0 +1,306 @@
+- **7zip** (6.31 MiB): File archiver for extremely high compression
+- **accountsservice** (1055.82 KiB): D-Bus interface for user account query and manipulation
+- **aichat** (14.84 MiB): All-in-one AI CLI tool featuring Chat-REPL, Shell Assistant, RAG, AI tools & agents
+- **alacritty** (8.18 MiB): A cross-platform, GPU-accelerated terminal emulator
+- **alsa-firmware** (14.12 MiB): Firmware binaries for loader programs in alsa-tools and hotplug firmware loader
+- **alsa-plugins** (396.72 KiB): Additional ALSA plugins
+- **alsa-utils** (2.56 MiB): Advanced Linux Sound Architecture - Utilities
+- **android-studio** (3.16 GiB): The official Android IDE (Stable branch)
+- **android-tools** (6.53 MiB): Android platform tools
+- **android-udev** (38.44 KiB): Udev rules to connect Android devices to your linux box
+- **ark** (5.14 MiB): Archiving Tool
+- **awesome-terminal-fonts** (377.35 KiB): fonts/icons for powerlines
+- **base** (0.00 B): Minimal package set to define a basic Arch Linux installation
+- **base-devel** (0.00 B): Basic tools to build Arch Linux packages
+- **bash-completion** (1035.87 KiB): Programmable completion for the bash shell
+- **bass-fish** (7.28 KiB): Make Bash utilities usable in Fish shell
+- **bazaar** (3.18 MiB): A new app store for GNOME with focus on flatpaks, particularly Flathub
+- **bind** (7.35 MiB): A complete, highly portable implementation of the DNS protocol
+- **bluedevil** (2.60 MiB): Integrate the Bluetooth technology within KDE workspace and applications
+- **bluez** (1838.04 KiB): Daemons for the bluetooth protocol stack
+- **bluez-hid2hci** (16.12 KiB): Put HID proxying bluetooth HCI's into HCI mode
+- **bluez-libs** (324.93 KiB): Deprecated libraries for the bluetooth protocol stack
+- **bluez-obex** (643.27 KiB): Object Exchange daemon for sharing content
+- **bluez-utils** (3.96 MiB): Development and debugging utilities for the bluetooth protocol stack
+- **breeze-gtk** (1184.70 KiB): Breeze widget theme for GTK 2 and 3
+- **btop** (1687.11 KiB): A monitor of system resources, bpytop ported to C++
+- **btrfs-progs** (6.64 MiB): Btrfs filesystem utilities
+- **bun-bin** (99.46 MiB): All-in-one JavaScript runtime built for speed, with bundler, transpiler, test runner, and package manager. Includes bunx, shell completions and support for baseline CPUs
+- **cachyos-emerald-kde-theme-git** (45.12 MiB): CachyOS Emerald KDE Theme
+- **cachyos-fish-config** (16.87 KiB): Fish configuration of CachyOS
+- **cachyos-hello** (9.96 MiB): Welcome screen for CachyOS
+- **cachyos-hooks** (5.31 KiB): CachyOS libalpm hooks
+- **cachyos-iridescent-kde** (7.03 MiB): CachyOS cachyos-iridescent-kde
+- **cachyos-kde-settings** (11.94 KiB): CachyOS KDE settings
+- **cachyos-kernel-manager** (985.64 KiB): Simple kernel manager
+- **cachyos-keyring** (2.43 KiB): CachyOS keyring
+- **cachyos-micro-settings** (291.26 KiB): CachyOS micro settings
+- **cachyos-mirrorlist** (2.03 KiB): CachyOS repository mirrorlist
+- **cachyos-nord-kde-theme-git** (2.17 MiB): CachyOS Nord KDE Theme
+- **cachyos-packageinstaller** (1894.67 KiB): Simple Software Application Package Installer for CachyOS which helps setting up & installing applications
+- **cachyos-plymouth-bootanimation** (730.21 KiB): CachyOS Bootanimation (new)
+- **cachyos-rate-mirrors** (6.12 KiB): CachyOS - Rate mirrors service
+- **cachyos-settings** (39.65 KiB): CachyOS - Settings
+- **cachyos-themes-sddm** (280.22 KiB): CachyOS-branded SDDM adaptation of archlinux-themes-kdm
+- **cachyos-v3-mirrorlist** (2.09 KiB): CachyOS repository mirrorlist
+- **cachyos-v4-mirrorlist** (2.09 KiB): CachyOS repository mirrorlist
+- **cachyos-wallpapers** (154.38 MiB): Wallpapers for CachyOS
+- **cachyos-zsh-config** (3.55 KiB): Zsh configuration for CachyOS
+- **cantarell-fonts** (193.33 KiB): Humanist sans serif font
+- **chaotic-keyring** (18.15 KiB): Chaotic-AUR PGP keyring
+- **chaotic-mirrorlist** (2.12 KiB): Chaotic-AUR mirrorlist to use with Pacman
+- **char-white** (37.07 MiB): Char-White Icons
+- **chatbox** (226.57 MiB): A desktop client for multiple cutting-edge AI models
+- **chromium** (409.79 MiB): A web browser built for speed, simplicity, and security
+- **chwd** (3.53 MiB): CachyOS Hardware Detection Tool
+- **claude-code** (224.65 MiB): An agentic coding tool that lives in your terminal
+- **cpupower** (626.36 KiB): Linux kernel tool to examine and tune power saving related features of your processor
+- **cryptsetup** (3.41 MiB): Userspace setup tool for transparent encryption of block devices using dm-crypt
+- **device-mapper** (831.02 KiB): Device mapper userspace library and tools
+- **diffutils** (1547.52 KiB): Utility programs used for creating patch files
+- **discover** (7.36 MiB): KDE and Plasma resources management GUI
+- **dmidecode** (208.19 KiB): Desktop Management Interface table related utilities
+- **dmraid** (330.03 KiB): Device mapper RAID interface
+- **dnsmasq** (1106.93 KiB): Lightweight, easy to configure DNS forwarder and DHCP server
+- **docker** (112.14 MiB): Pack, ship and run any application as a lightweight container
+- **docker-compose** (27.49 MiB): Fast, isolated development environments using Docker
+- **dolphin** (15.61 MiB): KDE File Manager
+- **dosfstools** (437.22 KiB): DOS filesystem utilities
+- **duf** (3.01 MiB): Disk Usage/Free Utility
+- **e2fsprogs** (5.39 MiB): Ext2/3/4 filesystem utilities
+- **efibootmgr** (83.71 KiB): Linux user-space application to modify the EFI Boot Manager
+- **efitools** (255.08 KiB): Tools for manipulating UEFI secure boot platforms
+- **egl-wayland** (105.55 KiB): EGLStream-based Wayland external platform
+- **ethtool** (1045.24 KiB): Utility for controlling network drivers and hardware
+- **exfatprogs** (280.26 KiB): exFAT filesystem userspace utilities for the Linux Kernel exfat driver
+- **f2fs-tools** (622.97 KiB): Tools for Flash-Friendly File System (F2FS)
+- **fast-bin** (4.32 MiB): Minimal zero-dependency utility for testing your internet download speed from terminal. Written in Go. Uses fast.com
+- **fastfetch** (1674.30 KiB): A feature-rich and performance oriented neofetch like system information tool
+- **ffmpegthumbnailer** (300.73 KiB): Lightweight video thumbnailer that can be used by file managers
+- **ffmpegthumbs** (105.30 KiB): FFmpeg-based thumbnail creator for video files
+- **filelight** (1536.65 KiB): View disk usage information
+- **find-the-command-git** (22.74 KiB): Advanced command-not-found hook for bash, fish and zsh using the power of pacman
+- **firefox** (279.33 MiB): Fast, Private & Safe Web Browser
+- **firefox-developer-edition** (281.65 MiB): Fast, Private & Safe Web Browser (Developer Edition)
+- **fish-fzf** (36.23 KiB): fzf key-bindings into fish
+- **fish-nvm** (18.27 KiB): Node.js version manager lovingly made for Fish
+- **fish-session** (1911.76 KiB): UI-first session manager for Fish shell with persistent PTY sessions
+- **fish-tide** (91.03 KiB): 🌊 The ultimate Fish prompt.
+- **fishmarks-git** (1436.00 B): Handles bookmarks in fish shell
+- **flatpak** (8.08 MiB): Linux application sandboxing and distribution framework (formerly xdg-app)
+- **flatpak-kcm** (763.91 KiB): Flatpak Permissions Management KCM
+- **freeoffice** (261.00 MiB): A complete, reliable, lightning-fast and Microsoft Office-compatible office suite with a word processor, spreadsheet, and presentation graphics software.
+- **fsarchiver** (299.36 KiB): Safe and flexible file-system backup and deployment tool
+- **fuse2** (451.70 KiB): Interface for userspace programs to export a filesystem to the Linux kernel
+- **fwupd** (17.95 MiB): Simple daemon to allow session software to update firmware
+- **gemini-cli** (37.19 MiB): Open-source AI agent that brings the power of Gemini directly into your terminal
+- **gemini-desktop-git** (155.86 KiB): Unofficial Web app for Google Gemini providing the desktop user experience (Git version)
+- **git** (32.07 MiB): the fast distributed version control system
+- **git-delta** (5.92 MiB): Syntax-highlighting pager for git and diff output
+- **git-it** (286.76 MiB): Desktop app that teaches you how to use Git and GitHub on the command line.
+- **github-cli** (36.75 MiB): The GitHub CLI
+- **github-copilot-cli** (261.47 MiB): GitHub Copilot CLI brings the power of Copilot coding agent directly to your terminal.
+- **github-desktop-plus-bin** (383.26 MiB): Fork of GitHub Desktop with extra features and improvements (binary release).
+- **github-store-bin** (271.27 MiB): A free, open-source app store for GitHub releases — browse, discover, and install apps with one click. Powered by Kotlin and Compose Multiplatform for Android & Desktop.(Prebuilt version)
+- **gitkraken** (649.98 MiB): The intuitive, fast, and beautiful cross-platform Git client.
+- **glances** (5.58 MiB): CLI curses-based monitoring tool
+- **googleworkspace-cli** (10.61 MiB): Command-line tool for Drive, Gmail, Calendar, Sheets, Docs, Chat, Admin, and more
+- **gradle** (145.69 MiB): Powerful build system for the JVM
+- **gst-libav** (250.75 KiB): Multimedia graph framework - libav plugin
+- **gst-plugin-pipewire** (187.39 KiB): Multimedia graph framework - pipewire plugin
+- **gst-plugin-va** (554.15 KiB): Multimedia graph framework - va plugin
+- **gst-plugins-bad** (3.76 MiB): Multimedia graph framework - bad plugins
+- **gst-plugins-ugly** (555.17 KiB): Multimedia graph framework - ugly plugins
+- **gwenview** (11.67 MiB): A fast and easy to use image viewer
+- **haruna** (4.44 MiB): Video player built with Qt/QML on top of libmpv
+- **hdparm** (194.38 KiB): A shell utility for manipulating Linux IDE drive/driver parameters
+- **hwdetect** (15.43 KiB): Hardware detection script with loading modules and mkinitcpio.conf
+- **hwinfo** (3.97 MiB): Hardware detection tool from openSUSE
+- **inetutils** (1218.00 KiB): A collection of common network programs
+- **intel-ucode** (30.24 MiB): Microcode update files for Intel CPUs
+- **iptables-nft** (2.46 MiB): Linux kernel packet control tool (using nft interface)
+- **iwd** (2.19 MiB): Internet Wireless Daemon
+- **jetbrains-toolbox** (197.57 MiB): Manage all your JetBrains Projects and Tools
+- **jfsutils** (1000.67 KiB): JFS filesystem utilities
+- **kate** (36.09 MiB): Advanced text editor
+- **kcalc** (2.96 MiB): Scientific Calculator
+- **kde-gtk-config** (343.96 KiB): Syncs KDE settings to GTK applications
+- **kdeconnect** (6.60 MiB): Adds communication between KDE and your smartphone
+- **kdegraphics-thumbnailers** (158.00 KiB): Thumbnailers for various graphics file formats
+- **kdenlive** (84.70 MiB): A non-linear video editor for Linux using the MLT video framework
+- **kdeplasma-addons** (12.13 MiB): All kind of addons to improve your Plasma experience
+- **kdialog** (754.22 KiB): A utility for displaying dialog boxes from shell scripts
+- **kf6-servicemenus-rootactions** (68.94 KiB): Allows admin users to perform several root only actions from dolphin via polkit agent.
+- **kinfocenter** (3.09 MiB): A utility that provides information about a computer system
+- **kio-admin** (326.40 KiB): Manage files as administrator using the admin:// KIO protocol
+- **konsole** (9.77 MiB): KDE terminal emulator
+- **krename** (2.21 MiB): A very powerful batch file renamer
+- **krfb** (2.61 MiB): Desktop Sharing
+- **krun** (591.00 B): crun based OCI runtime using libkrun to run containerized programs in isolated KVM environments
+- **krusader** (14.52 MiB): Advanced twin panel (commander style) file manager
+- **kscreen** (3.33 MiB): KDE screen management software
+- **kwallet-pam** (27.74 KiB): KWallet PAM integration
+- **kwalletmanager** (2.81 MiB): Wallet management tool
+- **less** (403.98 KiB): A terminal based program for viewing text files
+- **lib32-mesa** (54.14 MiB): Open-source OpenGL drivers - 32-bit
+- **lib32-opencl-mesa** (43.85 MiB): Open-source OpenCL drivers - 32-bit
+- **lib32-vulkan-intel** (41.07 MiB): Open-source Vulkan driver for Intel GPUs - 32-bit
+- **libdvdcss** (62.74 KiB): Portable abstraction library for DVD decryption
+- **libgsf** (1504.54 KiB): Extensible I/O abstraction library for dealing with structured file formats
+- **libopenraw** (3.12 MiB): Library for decoding RAW files
+- **libpamac-aur** (15.22 MiB): Pamac package manager library based on libalpm
+- **libratbag** (3.96 MiB): A DBus daemon to configure gaming mice
+- **libva-intel-driver-irql** (8.22 MiB): VA-API implementation for Intel G45 and HD Graphics family (IRQL fork)
+- **limine** (4.56 MiB): An advanced, portable, multiprotocol bootloader
+- **limine-mkinitcpio-hook** (13.84 MiB): Install kernels for the Limine bootloader.
+- **linux-cachyos** (146.17 MiB): The Linux EEVDF + LTO + AutoFDO + Propeller Cachy Sauce Kernel by CachyOS with other patches and improvements. kernel and modules
+- **linux-cachyos-bore** (151.10 MiB): The Linux BORE + Cachy Sauce scheduler Kernel by CachyOS with other patches and improvements kernel and modules
+- **linux-cachyos-bore-headers** (274.27 MiB): Headers and scripts for building modules for the Linux BORE + Cachy Sauce scheduler Kernel by CachyOS with other patches and improvements kernel
+- **linux-cachyos-headers** (153.35 MiB): Headers and scripts for building modules for the Linux EEVDF + LTO + AutoFDO + Propeller Cachy Sauce Kernel by CachyOS with other patches and improvements. kernel
+- **linux-firmware** (0.00 B): Firmware files for Linux - Default set
+- **linux-zen** (150.56 MiB): The Linux ZEN kernel and modules
+- **linux-zen-headers** (273.99 MiB): Headers and scripts for building modules for the Linux ZEN kernel
+- **localsend** (38.64 MiB): An open source cross-platform alternative to AirDrop
+- **logrotate** (100.65 KiB): Rotates system logs automatically
+- **lsb-release** (17.28 KiB): LSB version query program
+- **lsscsi** (101.07 KiB): A tool that lists devices connected via SCSI and its transports
+- **lvm2** (6.89 MiB): Logical Volume Manager 2 utilities
+- **man-db** (2.46 MiB): A utility for reading man pages
+- **man-pages** (5.63 MiB): Linux man pages
+- **mdadm** (1043.02 KiB): A tool for managing/monitoring Linux md device arrays, also known as Software RAID
+- **meld** (5.07 MiB): Compare files, directories and working copies
+- **mesa** (50.77 MiB): Open-source OpenGL drivers
+- **mesa-utils** (781.32 KiB): Essential Mesa utilities
+- **micro** (12.86 MiB): Modern and intuitive terminal-based text editor
+- **mkinitcpio** (210.72 KiB): Modular initramfs image creation utility
+- **modemmanager** (5.01 MiB): Mobile broadband modem management service
+- **mtkclient-git** (59.96 MiB): Unofficial MTK reverse engineering and flash tool
+- **mtools** (420.63 KiB): A collection of utilities to access MS-DOS disks
+- **nano** (2.73 MiB): Pico editor clone with enhancements
+- **nano-syntax-highlighting** (203.64 KiB): Nano editor syntax highlighting enhancements
+- **netctl** (96.35 KiB): Profile based systemd network management
+- **networkmanager** (15.59 MiB): Network connection manager and user applications
+- **networkmanager-openvpn** (1523.79 KiB): NetworkManager VPN plugin for OpenVPN (with GUI)
+- **nfs-utils** (1397.52 KiB): Support programs for Network File Systems
+- **nilfs-utils** (407.21 KiB): A log-structured file system supporting continuous snapshotting (userspace utils)
+- **nmap** (25.86 MiB): Utility for network discovery and security auditing
+- **noto-fonts** (106.81 MiB): Google Noto TTF fonts
+- **noto-fonts-cjk** (298.79 MiB): Google Noto CJK fonts
+- **noto-fonts-emoji** (10.18 MiB): Google Noto Color Emoji font
+- **npm** (7.52 MiB): JavaScript package manager
+- **nss-mdns** (111.70 KiB): glibc plugin providing host name resolution via mDNS
+- **nvm** (153.34 KiB): Node Version Manager - Simple bash script to manage multiple active node.js versions
+- **obsidian** (23.19 MiB): A powerful knowledge base that works on top of a local folder of plain text Markdown files
+- **ocs-url** (130.40 KiB): An install helper program for items served via OpenCollaborationServices (ocs://).
+- **octopi** (7.56 MiB): A powerful Pacman frontend using Qt libs
+- **ollama** (43.81 MiB): Create, run and share large language models (LLMs)
+- **opencl-mesa** (40.70 MiB): Open-source OpenCL drivers
+- **openssh** (7.60 MiB): SSH protocol implementation for remote login, command execution and file transfer
+- **os-prober** (57.62 KiB): Utility to detect other OSes on a set of drives
+- **otf-atkinsonhyperlegiblemono-nerd** (49.73 MiB): Patched font Atkinson Hyperlegible Mono from nerd fonts library
+- **otf-monaspace-nerd** (271.76 MiB): Patched font Monaspace (Monaspice) from nerd fonts library
+- **pacman-contrib** (137.32 KiB): Contributed scripts and tools for pacman systems
+- **papers** (17.79 MiB): Document viewer for PDF and other document formats aimed at the GNOME desktop
+- **partitionmanager** (6.73 MiB): A KDE utility that allows you to manage disks, partitions, and file systems
+- **paru** (7.85 MiB): Feature packed AUR helper
+- **pavucontrol** (1081.60 KiB): PulseAudio Volume Control
+- **pcmanfm** (1411.57 KiB): Extremely fast and lightweight file manager
+- **pcp-gui** (2.18 MiB): Visualization tools for the Performance Co-Pilot toolkit
+- **perl** (60.38 MiB): A highly capable, feature-rich programming language
+- **phonon-qt6-vlc** (352.30 KiB): Phonon VLC backend
+- **piper** (2.66 MiB): GTK application to configure gaming mice
+- **pipewire-alsa** (1218.00 B): Low-latency audio/video router and processor - ALSA configuration
+- **pipewire-pulse** (617.70 KiB): Low-latency audio/video router and processor - PulseAudio replacement
+- **pkgfile** (437.62 KiB): A tool to search for files in official repository packages
+- **plasma-browser-integration** (627.88 KiB): Components necessary to integrate browsers into the Plasma Desktop
+- **plasma-desktop** (39.40 MiB): KDE Plasma Desktop
+- **plasma-firewall** (1375.50 KiB): Control Panel for your system firewall
+- **plasma-login-manager** (1817.30 KiB): Plasma Login Manager
+- **plasma-nm** (12.77 MiB): Plasma applet written in QML for managing network connections
+- **plasma-pa** (1952.12 KiB): Plasma applet for audio volume management using PulseAudio
+- **plasma-systemmonitor** (2.64 MiB): An interface for monitoring system sensors, process information and other system resources
+- **plasma-thunderbolt** (557.19 KiB): Plasma integration for controlling Thunderbolt devices
+- **plocate** (531.61 KiB): Alternative to locate, faster and compatible with mlocate's database.
+- **plymouth** (2.24 MiB): Graphical boot splash screen
+- **plymouth-kcm** (300.14 KiB): KCM to manage the Plymouth (Boot) theme
+- **poppler-glib** (3.27 MiB): Poppler glib bindings
+- **power-profiles-daemon** (154.13 KiB): Makes power profiles handling available over D-Bus
+- **powerdevil** (6.02 MiB): Manages the power consumption settings of a Plasma Shell
+- **pv** (347.08 KiB): A terminal-based tool for monitoring the progress of data through a pipeline
+- **python** (72.20 MiB): The Python programming language
+- **python-bark-git** (8.12 MiB): Text-Prompted Generative Audio Model by Suno AI
+- **python-colorama** (261.11 KiB): Python API for cross-platform colored terminal text.
+- **python-defusedxml** (147.65 KiB): XML bomb protection for Python stdlib modules
+- **python-json5** (405.87 KiB): A Python implementation of the JSON5 data format
+- **python-libusb1** (604.01 KiB): Python ctype-based wrapper around libusb1
+- **python-packaging** (909.55 KiB): Core utilities for Python packages
+- **python-pip** (16.23 MiB): The PyPA recommended tool for installing Python packages
+- **python-pipx** (926.33 KiB): Install and Run Python Applications in Isolated Environments
+- **python-pyusb** (664.83 KiB): USB access on Python
+- **python-setuptools** (7.35 MiB): Easily download, build, install, upgrade, and uninstall Python packages
+- **python311** (74.12 MiB): The Python programming language (version 3.11)
+- **qemu-user-static** (124.74 MiB): QEMU static user mode emulation
+- **qemu-user-static-binfmt** (56.29 KiB): Binary format rules for QEMU static user mode emulation
+- **rclone** (102.04 MiB): rsync for cloud storage
+- **reapack** (848.05 KiB): Package manager for the Reaper DAW
+- **rebuild-detector** (6.29 KiB): Detects which packages need to be rebuilt
+- **reflector** (158.15 KiB): A Python 3 module and script to retrieve and filter the latest Pacman mirror list.
+- **ripgrep** (3.68 MiB): A search tool that combines the usability of ag with the raw speed of grep
+- **roo-code-gemini-cli** (27.60 MiB): A whole dev team of LLM agents in your VS Code, Cursor or other compatible editor. Patched to add gemini-cli as a LLM provider.
+- **rsync** (771.12 KiB): A fast and versatile file copying tool for remote and local files
+- **ruby** (17.94 MiB): An object-oriented language for quick and easy programming
+- **rustdesk-bin** (76.29 MiB): Yet another remote desktop software, written in Rust. Works out of the box, no configuration required.
+- **s-nail** (1249.66 KiB): Environment for sending and receiving mail
+- **scrcpy** (342.76 KiB): Display and control your Android device
+- **sg3_utils** (3.30 MiB): Generic SCSI utilities
+- **smartmontools** (2.25 MiB): Control and monitor S.M.A.R.T. enabled ATA and SCSI Hard Drives
+- **sof-firmware** (42.80 MiB): Sound Open Firmware
+- **spectacle** (6.14 MiB): KDE screenshot capture utility
+- **spflashtool-bin** (9.31 MiB): SP Flash Tool is an application to flash your MediaTek (MTK) SmartPhone.
+- **sshpass** (24.43 KiB): Fool ssh into accepting an interactive password non-interactively
+- **sudo** (8.10 MiB): Give certain users the ability to run some commands as root
+- **superfile** (16.25 MiB): Pretty fancy and modern terminal file manager
+- **sysfsutils** (92.79 KiB): System Utilities Based on Sysfs
+- **tailscale** (46.48 MiB): A mesh VPN that makes it easy to connect your devices, wherever they are.
+- **texinfo** (11.56 MiB): GNU documentation system for on-line information and printed output
+- **tmux** (1336.96 KiB): Terminal multiplexer
+- **tree** (94.00 KiB): A directory listing program displaying a depth indented list of files
+- **ttf-bitstream-vera** (570.63 KiB): Bitstream Vera fonts.
+- **ttf-daddytime-mono-nerd** (7.06 MiB): Patched font Daddy Time Mono from nerd fonts library
+- **ttf-dejavu** (9.79 MiB): Font family based on the Bitstream Vera Fonts with a wider range of characters
+- **ttf-heavydata-nerd** (4.56 MiB): Patched font Heavy Data from nerd fonts library
+- **ttf-liberation** (4.16 MiB): Font family which aims at metric compatibility with Arial, Times New Roman, and Courier New
+- **ttf-liberation-mono-nerd** (72.75 MiB): Patched font Liberation Mono from nerd fonts library
+- **ttf-meslo-nerd** (194.60 MiB): Patched font Meslo LG from nerd fonts library
+- **ttf-meslo-nerd-font-powerlevel10k** (9.84 MiB): Meslo Nerd Font patched for Powerlevel10k
+- **ttf-monoid-nerd** (27.19 MiB): Patched font Monoid from nerd fonts library
+- **ttf-nerd-fonts-symbols** (2.33 MiB): High number of extra glyphs from popular 'iconic fonts'
+- **ttf-nerd-fonts-symbols-mono** (2.39 MiB): High number of extra glyphs from popular 'iconic fonts' (monospace)
+- **ttf-opensans** (2.88 MiB): Sans-serif typeface commissioned by Google
+- **ttf-zed-mono-nerd** (699.56 MiB): Patched font Zed Mono from nerd fonts library
+- **ufw** (528.09 KiB): Uncomplicated and easy to use CLI tool for managing a netfilter firewall
+- **unrar** (573.12 KiB): The RAR uncompression program
+- **unzip** (352.07 KiB): For extracting and viewing files in .zip archives
+- **upower** (865.42 KiB): Abstraction for enumerating power devices, listening to device events and querying history and statistics
+- **usb_modeswitch** (256.89 KiB): Activating switchable USB devices on Linux.
+- **usbutils** (385.63 KiB): A collection of USB tools to query connected USB devices
+- **video-downloader** (433.70 KiB): Download videos from websites like YouTube and many others (based on yt-dlp)
+- **vim** (6.22 MiB): Vi Improved, a highly configurable, improved version of the vi text editor
+- **vlc-plugins-all** (0.00 B): Free and open source cross-platform multimedia player and framework - all plugins
+- **vulkan-intel** (39.40 MiB): Open-source Vulkan driver for Intel GPUs
+- **wget** (5.75 MiB): Network utility to retrieve files from the web
+- **which** (30.08 KiB): A utility to show the full path of commands
+- **wine** (506.93 MiB): A compatibility layer for running Windows programs
+- **wine-mono** (226.42 MiB): Wine's built-in replacement for Microsoft's .NET Framework
+- **winetricks** (875.11 KiB): Script to install various redistributable runtime libraries in Wine.
+- **wireless-regdb** (21.42 KiB): Central Regulatory Domain Database
+- **wireplumber** (1188.51 KiB): Session / policy manager implementation for PipeWire
+- **wireshark-qt** (9.60 MiB): Network traffic and protocol analyzer/sniffer - Qt GUI
+- **wpa_supplicant** (8.26 MiB): A utility providing key negotiation for WPA wireless networks
+- **xdg-user-dirs** (163.61 KiB): Manage user directories like ~/Desktop and ~/Music
+- **xdg-utils** (310.69 KiB): Command line tools that assist applications with a variety of desktop integration tasks
+- **xfsprogs** (5.13 MiB): XFS filesystem utilities
+- **xl2tpd** (137.70 KiB): an open source implementation of the L2TP maintained by Xelerance Corporation
+- **xsettingsd** (71.18 KiB): Provides settings to X11 applications via the XSETTINGS specification
+- **yarn** (19.26 MiB): Fast, reliable, and secure dependency management
+- **yay** (9.44 MiB): Yet another yogurt. Pacman wrapper and AUR helper written in go.
