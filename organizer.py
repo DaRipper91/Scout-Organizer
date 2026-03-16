@@ -10,7 +10,7 @@ Usage:
     python organizer.py
 
 Environment:
-    OLLAMA_HOST   Ollama base URL (default: http://localhost:11434)
+    OLLAMA_HOST   Ollama base URL (default: http://100.115.141.124:11434)
     SCOUT_MODEL   Default model   (default: qwen2.5-coder:7b)
 """
 

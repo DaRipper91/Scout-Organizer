@@ -7,7 +7,7 @@ import os
 import requests
 from typing import Optional, Tuple
 
-OLLAMA_HOST   = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
+OLLAMA_HOST   = os.environ.get("OLLAMA_HOST", "http://100.115.141.124:11434")
 OLLAMA_URL    = f"{OLLAMA_HOST}/api/generate"
 DEFAULT_MODEL = os.environ.get("SCOUT_MODEL", "qwen2.5-coder:7b")
 

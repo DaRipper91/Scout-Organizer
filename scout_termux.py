@@ -2,9 +2,7 @@
 """
 scout_termux.py — AI-assisted filesystem organizer for Termux.
 
-Dependencies: pip install requests
-Ollama host:  set OLLAMA_HOST env var (default: http://localhost:11434)
-              e.g. export OLLAMA_HOST=http://192.168.1.10:11434
+Dependencies: aichat (installed and accessible in PATH)
 """
 
 import os
@@ -15,13 +13,11 @@ import hashlib
 import fnmatch
 import threading
 import datetime
-import requests
+import subprocess
 
 # ── Config ────────────────────────────────────────────────────────────────────
 
-OLLAMA_HOST  = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
-OLLAMA_URL   = f"{OLLAMA_HOST}/api/generate"
-MODELS       = ["qwen2.5-coder:1.5b", "qwen2.5-coder:7b"]
+MODELS       = ["gemini:gemini-2.5-flash", "claude:claude-3-5-sonnet-20241022"]
 HISTORY_FILE = os.path.expanduser("~/scout_history.json")
 PRESETS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "presets.json")
 
@@ -154,17 +150,29 @@ def browse_directory(start: str) -> str:
             except ValueError:
                 pass
 
-# ── Ollama call (blocking, runs in thread) ─────────────────────────────────────
+# ── aichat call (blocking, runs in thread) ─────────────────────────────────────
 
-def call_ollama(prompt: str, model: str, timeout: int = 120) -> str:
-    resp = requests.post(OLLAMA_URL, json={
-        "model":  model,
-        "prompt": prompt,
-        "stream": False,
-        "format": "json",
-    }, timeout=timeout)
-    resp.raise_for_status()
-    return resp.json().get("response", "{}")
+def call_aichat(prompt: str, model: str, timeout: int = 120) -> str:
+    try:
+        proc = subprocess.run(
+            ["aichat", "-m", model, prompt],
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            check=True
+        )
+        out = proc.stdout.strip()
+        if out.startswith("```json"):
+            out = out[7:]
+        if out.startswith("```"):
+            out = out[3:]
+        if out.endswith("```"):
+            out = out[:-3]
+        return out.strip()
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"aichat error: {e.stderr or e.stdout}")
+    except subprocess.TimeoutExpired:
+        raise RuntimeError("aichat request timed out")
 
 # ── Spinner ───────────────────────────────────────────────────────────────────
 
@@ -223,10 +231,10 @@ def action_scout(state: dict) -> None:
         f"Do not include any explanation."
     )
 
-    raw, err = run_with_spinner("Thinking", call_ollama, prompt, model)
+    raw, err = run_with_spinner("Thinking", call_aichat, prompt, model)
 
     if err:
-        print(red(f"  Ollama error: {err}"))
+        print(red(f"  aichat error: {err}"))
         input(dim("  Press Enter..."))
         return
 
